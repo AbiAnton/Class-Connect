@@ -1,3 +1,16 @@
+body { /* puts filter button in the right place */
+  display: block;
+  place-items: normal;
+}
+
+main { /* puts filter button in the right place */
+   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  margin-top: 3rem;
+} 
+
 navbar {
   display: flex;
   flex-direction: row;
@@ -12,21 +25,44 @@ navbar {
   z-index: 1000;
 }
 
-navbar div {
+navbar div { /* means div children of navbar */
   margin: 0.5rem; /* one rem is 16 px */
   font-family: Arial;
   font-weight: bold;
 }
 
-body {
-  display: block;
-  place-items: normal;
+.profiles-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 1400px;
 }
 
-main {
-   display: flex;
+.profile-card {
+  padding: 2rem;
+  text-align: center;
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 1rem;
-  margin-top: 3rem;
+  align-items: center;
+}
+
+.profile-picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: #d3d3d3;
+  margin: 0 auto 1.5rem auto;
+}
+
+.profile-card h3 {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+}
+
+.profile-card p {
+  margin: 0.4rem 0;
+  font-size: 1.1rem;
 }
