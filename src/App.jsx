@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 function Profile({name, shared_classes, similar_interests, save}){
@@ -20,6 +18,10 @@ function Profile({name, shared_classes, similar_interests, save}){
 function App() {
   const [savedProfiles, setSavedProfiles] = useState(0)
 
+  useEffect(() => {
+    // code to run
+    console.log('There are ' + savedProfiles + ' saved profiles.')
+  }, []) // brackets is dependency array
 
   return (
     <main>
