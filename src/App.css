@@ -55,6 +55,21 @@ navbar div { /* means div children of navbar */
   border-radius: 50%;
   background-color: #d3d3d3;
   margin: 0 auto 1.5rem auto;
+  position: relative; /* need a position value for save to work */
+}
+
+.save-button {
+  position: absolute; /* ignores everything else, positions relative to profile-picture */
+  top: 10px;
+  right: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .profile-card h3 {
