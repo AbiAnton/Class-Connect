@@ -27,7 +27,7 @@ function App() {
 function Home({savedProfiles, setSavedProfiles}) {
   useEffect(() => {
     console.log('There are ' + savedProfiles + ' saved profiles.')
-  }, [])
+  }, [savedProfiles]) // Dependency array means log whenever savedProfiles changes. https://www.youtube.com/watch?v=YxkcMszKEYY
 
   // Store users in a state variable
   const [users, setUsers] = useState([])
@@ -54,7 +54,7 @@ function Home({savedProfiles, setSavedProfiles}) {
 
     getData();
 
-  }, []) 
+  }, []) // Empty dependency array means run once on first render
 
   return (
     <main>
@@ -105,7 +105,7 @@ function Profile({name, shared_classes, similar_interests, save}){
   return(
     <div className='profile-card' aria-label={name}>
       <div className='profile-picture'>
-        <button className='save-button' aria-label="Save" onClick={save}>Save</button>
+        <button className='save-button' aria-label="Save" onClick={save}/>
       </div>
       <h3 style={{fontWeight: 'bold', margin: '0.5rem 0'}}>{name}</h3>
       <p style={{margin: '0.25rem 0'}}>{shared_classes} shared classes</p>
