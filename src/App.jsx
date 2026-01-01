@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import './App.css'
 
 function App() {
-  const [savedProfiles, setSavedProfiles] = useState(0) // Need to put this here so both About and Saved Can use it
+  const [savedProfiles, setSavedProfiles] = useState(0) // Need to put this here so both Home and Saved Can use it
 
   return (
     <BrowserRouter>
@@ -54,7 +54,7 @@ function Home({savedProfiles, setSavedProfiles}) {
 
     getData();
 
-  }, []) // Empty dependency array means run once on first render
+  }, []) // Empty dependency array means run only the first time you load the page
 
   return (
     <main>
@@ -62,7 +62,7 @@ function Home({savedProfiles, setSavedProfiles}) {
       <div className='profiles-list'>
        {users.map((user) => (
           <Profile 
-            key={user.id}
+            key={user.id} // Not part of props
             name={user.firstName + ' ' + user.lastName}
             shared_classes={3}
             similar_interests={5}
