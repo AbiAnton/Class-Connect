@@ -36,7 +36,8 @@ function Home({savedProfiles, setSavedProfiles}) {
 
     // Taken from https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
       async function getData() {
-      const url = "https://disc-assignment-5-users-api-iyct.onrender.com/api/users";
+        // NOTE TO SELF: Will only work when you have the server running
+      const url = "http://localhost:3005/users"; 
       try {
         const response = await fetch(url);
         if (!response.ok) { //Error
@@ -63,7 +64,7 @@ function Home({savedProfiles, setSavedProfiles}) {
        {users.map((user) => (
           <Profile 
             key={user.id} // Not part of props
-            name={user.firstName + ' ' + user.lastName}
+            name={user.first_name + ' ' + user.last_name}
             shared_classes={3}
             similar_interests={5}
             save={() => setSavedProfiles(savedProfiles + 1)}
