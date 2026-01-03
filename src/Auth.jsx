@@ -1,12 +1,8 @@
 // Taken from https://supabase.com/docs/guides/auth/quickstarts/react
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './App'
 
-const supabase = createClient(
-  'https://gmwspbobwxflqrvkyqmj.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdtd3NwYm9id3hmbHFydmt5cW1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczOTI0MDcsImV4cCI6MjA4Mjk2ODQwN30.C5jrIVvvbTa9wkUMonbzglCJkbDJR2gD09kT0XJIh8E'
-)
 
 export default function AuthComponent() {
   const [loading, setLoading] = useState(false)
