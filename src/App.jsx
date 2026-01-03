@@ -37,7 +37,7 @@ function Home({savedProfiles, setSavedProfiles}) {
     // Taken from https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
       async function getData() {
         // NOTE TO SELF: Will only work when you have the server running
-      const url = "http://localhost:3005/users"; 
+      const url = "http://localhost:3005/users/profiles";
       try {
         const response = await fetch(url);
         if (!response.ok) { //Error
@@ -62,11 +62,13 @@ function Home({savedProfiles, setSavedProfiles}) {
       <button aria-label='Filter Profiles' style={{marginLeft: 'auto'}}>Filter</button>
       <div className='profiles-list'>
        {users.map((user) => (
+        // NOTE: Choosing not to include birthday, even though it's in user_profiles, because I think it would be odd to display here
           <Profile 
             key={user.id} // Not part of props
             name={user.first_name + ' ' + user.last_name}
             shared_classes={3}
             similar_interests={5}
+            bio={user.user_profiles.bio}
             save={() => setSavedProfiles(savedProfiles + 1)}
           />
         ))}
@@ -102,7 +104,7 @@ function Settings() {
   )
 }
 
-function Profile({name, shared_classes, similar_interests, save}){
+function Profile({name, shared_classes, similar_interests, bio, save}){
   return(
     <div className='profile-card' aria-label={name}>
       <div className='profile-picture'>
@@ -111,6 +113,7 @@ function Profile({name, shared_classes, similar_interests, save}){
       <h3 style={{fontWeight: 'bold', margin: '0.5rem 0'}}>{name}</h3>
       <p style={{margin: '0.25rem 0'}}>{shared_classes} shared classes</p>
       <p style={{margin: '0.25rem 0'}}>{similar_interests} similar interests</p>
+      <p style={{margin: '0.25rem 0'}}>{bio}</p>
     </div>
   )
 }
