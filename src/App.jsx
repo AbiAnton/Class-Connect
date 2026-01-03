@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import './App.css'
 import AuthComponent from './Auth'
@@ -9,22 +9,52 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
 
-function App() {
-  const [savedProfiles, setSavedProfiles] = useState(0) // Need to put this here so both Home and Saved Can use it
-  // trying this for auth
+export const UserContext = React.createContext();
+
+export function AuthProvider({ children }) {
+ 	const [user, setUser] = useState(null);
+ 	const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [session, setSession] = useState(null)
 
   useEffect(() => {
+    //First load
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-    })
+      
+      if (session){
+        setIsLoggedIn(true)
+        setUser(session.user)
+      } else{
+        setIsLoggedIn(false)
+        setUser(null)
+      }
+    });
 
+    // Every time auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      if (session){
+        setIsLoggedIn(true)
+        setUser(session.user)
+      } else{
+        setIsLoggedIn(false)
+        setUser(null)
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  return (
+    <UserContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+
+function App() {
+  const [savedProfiles, setSavedProfiles] = useState(0) // Need to put this here so both Home and Saved Can use it
 
   return (
     <BrowserRouter>
