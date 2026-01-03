@@ -11,7 +11,7 @@ main { /* puts filter button in the right place */
   margin-top: 3rem;
 } 
 
-navbar {
+nav {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

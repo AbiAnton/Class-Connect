@@ -1,30 +1,61 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import './App.css'
+import AuthComponent from './Auth'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 
 function App() {
   const [savedProfiles, setSavedProfiles] = useState(0) // Need to put this here so both Home and Saved Can use it
+  // trying this for auth
+  const [session, setSession] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   return (
     <BrowserRouter>
-      <navbar>
+      <nav>
         <Link to="/" style={{ textDecoration: 'none', color: 'inherit'}} aria-label='Home'>Home</Link>
         <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='About'>About</Link>
         <Link to="/saved" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='Saved Profiles'>Saved Profiles: {savedProfiles}</Link>
         <Link to="/settings" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='Settings'>Settings</Link>
-      </navbar>
+      </nav>
 
       <Routes>
-        <Route path="/" element={<Home savedProfiles={savedProfiles} setSavedProfiles={setSavedProfiles} />} />
+        <Route path="/" element={<Home savedProfiles={savedProfiles} setSavedProfiles={setSavedProfiles} session={session} />} />       
         <Route path="/about" element={<About />} />
         <Route path="/saved" element={<SavedProfiles savedProfiles={savedProfiles} />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/login" element={<AuthComponent />} />
       </Routes>
     </BrowserRouter>
   );
 } 
 
-function Home({savedProfiles, setSavedProfiles}) {
+function Home({savedProfiles, setSavedProfiles, session}) {
+  if (!session) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '50px' }}>
+        <h2>Please log in to view profiles</h2>
+        <Link to="/login">Go to Login</Link>
+      </div>
+    )
+  }
+  
   useEffect(() => {
     console.log('There are ' + savedProfiles + ' saved profiles.')
   }, [savedProfiles]) // Dependency array means log whenever savedProfiles changes. https://www.youtube.com/watch?v=YxkcMszKEYY
@@ -33,29 +64,34 @@ function Home({savedProfiles, setSavedProfiles}) {
   const [users, setUsers] = useState([])
 
   useEffect(() => {
-
-    // Taken from https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-      async function getData() {
-        // NOTE TO SELF: Will only work when you have the server running
-      const url = "http://localhost:3005/users/profiles";
-      try {
-        const response = await fetch(url);
-        if (!response.ok) { //Error
-          throw new Error(`Response status: ${response.status}`);
+  // Taken from https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  async function getData() {
+    // NOTE TO SELF: Will only work when you have the server running
+    const url = "http://localhost:3005/users/profiles";
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        
-        // If response is okay
-        const result = await response.json();
-        setUsers(result);
-        console.log(result);
-      } catch (error) {
-        console.error(error.message);
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
       }
+      
+      const result = await response.json();
+      setUsers(result);
+      console.log(result);
+    } catch (error) {
+      console.error(error.message);
     }
-
+  }
+  
     getData();
-
-  }, []) // Empty dependency array means run only the first time you load the page
+  }, []) // Empty dependency array means only load once
 
   return (
     <main>
@@ -68,7 +104,7 @@ function Home({savedProfiles, setSavedProfiles}) {
             name={user.first_name + ' ' + user.last_name}
             shared_classes={3}
             similar_interests={5}
-            bio={user.user_profiles.bio}
+            bio={user.user_profiles?.bio || 'No bio available'}
             save={() => setSavedProfiles(savedProfiles + 1)}
           />
         ))}
