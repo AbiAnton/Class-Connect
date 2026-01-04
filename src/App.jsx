@@ -9,18 +9,15 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
 
-export const UserContext = React.createContext();
+export const AuthContext = React.createContext();
 
 export function AuthProvider({ children }) {
  	const [user, setUser] = useState(null);
  	const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [session, setSession] = useState(null)
 
   useEffect(() => {
     //First load
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      
       if (session){
         setIsLoggedIn(true)
         setUser(session.user)
@@ -32,7 +29,6 @@ export function AuthProvider({ children }) {
 
     // Every time auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
       if (session){
         setIsLoggedIn(true)
         setUser(session.user)
@@ -43,12 +39,21 @@ export function AuthProvider({ children }) {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, []);
+
+  const login = (userData) => {
+    setUser(userData)
+    setIsLoggedIn(true)
+  }
+
+  const logout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    setIsLoggedIn(false)
+  }
 
   return (
-    <UserContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
-      {children}
-    </UserContext.Provider>
+    <AuthContext.Provider value={{ user, isLoggedIn, login, logout}}>{children}</AuthContext.Provider>
   );
 }
 
@@ -57,27 +62,31 @@ function App() {
   const [savedProfiles, setSavedProfiles] = useState(0) // Need to put this here so both Home and Saved Can use it
 
   return (
-    <BrowserRouter>
-      <nav>
-        <Link to="/" style={{ textDecoration: 'none', color: 'inherit'}} aria-label='Home'>Home</Link>
-        <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='About'>About</Link>
-        <Link to="/saved" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='Saved Profiles'>Saved Profiles: {savedProfiles}</Link>
-        <Link to="/settings" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='Settings'>Settings</Link>
-      </nav>
+    <AuthProvider>
+      <BrowserRouter>
+        <nav>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit'}} aria-label='Home'>Home</Link>
+          <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='About'>About</Link>
+          <Link to="/saved" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='Saved Profiles'>Saved Profiles: {savedProfiles}</Link>
+          <Link to="/settings" style={{ textDecoration: 'none', color: 'inherit' }} aria-label='Settings'>Settings</Link>
+        </nav>
 
-      <Routes>
-        <Route path="/" element={<Home savedProfiles={savedProfiles} setSavedProfiles={setSavedProfiles} session={session} />} />       
-        <Route path="/about" element={<About />} />
-        <Route path="/saved" element={<SavedProfiles savedProfiles={savedProfiles} />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/login" element={<AuthComponent />} />
-      </Routes>
-    </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home savedProfiles={savedProfiles} setSavedProfiles={setSavedProfiles} />} />       
+          <Route path="/about" element={<About />} />
+          <Route path="/saved" element={<SavedProfiles savedProfiles={savedProfiles} />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/login" element={<AuthComponent />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 } 
 
-function Home({savedProfiles, setSavedProfiles, session}) {
-  if (!session) {
+function Home({savedProfiles, setSavedProfiles}) {
+  const { user, isLoggedIn } = useContext(AuthContext)
+  
+  if (!isLoggedIn) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px' }}>
         <h2>Please log in to view profiles</h2>
