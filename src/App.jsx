@@ -106,7 +106,7 @@ function Home({savedProfiles, setSavedProfiles}) {
   // Taken from https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   async function getData() {
     // NOTE TO SELF: Will only work when you have the server running
-    const url = "http://localhost:3005/users/profiles";
+    const url = "${import.meta.env.VITE_API_URL}/users/profiles";
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
